@@ -35,7 +35,8 @@ The application is a 100% client-side web tool. No backend configuration is need
    git clone [https://github.com/onurfgg/BU_KISMA_REPO_ADINI_YAZ.git](https://github.com/onurfgg/multi-depot-vrp-optimizer.git)
 
 
-   Onur Furkan Gök
+Onur Furkan Gök
+
 
 [Linkedin](https://www.linkedin.com/in/onurfurkan/) 
 [GitHub](https://github.com/onurfgg) 
