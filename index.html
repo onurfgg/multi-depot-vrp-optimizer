@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Route Optimizer (TSP Solver)</title>
+    <title>Advanced Routing Optimizer (TSP/VRP)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
@@ -28,71 +28,66 @@
         body {
             margin: 0; font-family: 'Inter', sans-serif;
             background-color: var(--bg-dark);
-            background-image: radial-gradient(circle at top right, #1e293b, #0f172a);
+            background-image: radial-gradient(circle at top left, #1e293b, #0f172a);
             color: var(--text-main); 
             display: flex; justify-content: center; align-items: flex-start;
             min-height: 100vh; padding: 40px 20px; overflow-x: hidden;
         }
 
-        /* --- SOSYAL LİNKLER --- */
         .social-sidebar {
             position: fixed; top: 30px; left: 30px;
             display: flex; flex-direction: column; gap: 20px; z-index: 1000;
         }
         .social-sidebar a {
-            color: var(--text-muted); font-size: 26px; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: var(--text-muted); font-size: 26px; transition: 0.3s;
             background: rgba(255,255,255,0.03); width: 50px; height: 50px; 
             display: flex; align-items: center; justify-content: center; border-radius: 12px;
-            border: 1px solid var(--glass-border); backdrop-filter: blur(10px);
-            text-decoration: none;
+            border: 1px solid var(--glass-border); text-decoration: none;
         }
         .social-sidebar a:hover { color: var(--primary); transform: translateX(5px); border-color: var(--primary); background: rgba(59, 130, 246, 0.1); }
 
-        .wrapper { width: 100%; max-width: 1100px; display: flex; flex-direction: column; gap: 25px; }
+        .wrapper { width: 100%; max-width: 1200px; display: flex; flex-direction: column; gap: 25px; }
 
-        /* --- HEADER --- */
         .project-header { text-align: center; padding: 10px 0 20px 0; }
         .project-header i { font-size: 50px; color: var(--primary); margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.4));}
         .project-header h1 { margin: 0; font-size: 32px; font-weight: 900; letter-spacing: -1px; background: linear-gradient(to right, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;}
-        .project-header p { max-width: 700px; margin: 15px auto; font-size: 15px; color: var(--text-muted); line-height: 1.6; font-weight: 400;}
+        .project-header p { max-width: 800px; margin: 15px auto; font-size: 15px; color: var(--text-muted); line-height: 1.6; font-weight: 400;}
 
-        /* --- MAIN LAYOUT --- */
-        .main-grid {
-            display: grid; grid-template-columns: 300px 1fr; gap: 25px;
-        }
+        .main-grid { display: grid; grid-template-columns: 350px 1fr; gap: 25px; }
 
-        /* --- SIDEBAR CONTROLS --- */
         .control-panel {
             background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 25px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); backdrop-filter: blur(20px);
             display: flex; flex-direction: column; gap: 20px; height: fit-content;
         }
 
-        .panel-title { font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: white; display: flex; align-items: center; gap: 10px; margin-bottom: 5px;}
+        .panel-title { font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: white; display: flex; align-items: center; gap: 10px; margin-bottom: 5px; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px;}
         .panel-title i { color: var(--primary); }
 
-        .stat-box { background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 12px; padding: 15px; text-align: center;}
-        .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 5px; letter-spacing: 0.5px;}
-        .stat-val { font-size: 28px; font-weight: 900; color: var(--route); font-family: monospace; line-height: 1;}
+        /* Analitik Kutular */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .stat-box { background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 10px; padding: 12px; text-align: center;}
+        .stat-box.full { grid-column: span 2; background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.2); }
+        .stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 5px;}
+        .stat-val { font-size: 22px; font-weight: 900; color: white; font-family: monospace;}
         .stat-val.nodes { color: var(--primary); }
+        .stat-val.cost { color: var(--accent); font-size: 28px;}
+        .stat-val.saving { color: var(--route); font-size: 16px;}
 
         .btn {
-            width: 100%; padding: 14px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; transition: 0.3s;
-            display: flex; justify-content: center; align-items: center; gap: 10px; border: none; font-family: 'Inter'; text-transform: uppercase; letter-spacing: 0.5px;
+            width: 100%; padding: 14px; border-radius: 10px; font-size: 13px; font-weight: 800; cursor: pointer; transition: 0.3s;
+            display: flex; justify-content: center; align-items: center; gap: 8px; border: none; text-transform: uppercase; letter-spacing: 0.5px;
         }
         .btn-solve { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3); }
         .btn-solve:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(59, 130, 246, 0.5); }
-        
-        .btn-random { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: var(--accent); }
-        .btn-random:hover { background: rgba(16, 185, 129, 0.2); }
-
+        .btn-random { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); color: white; }
+        .btn-random:hover { background: rgba(255, 255, 255, 0.1); }
         .btn-clear { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: var(--danger); }
         .btn-clear:hover { background: rgba(239, 68, 68, 0.2); }
 
-        .algo-info { font-size: 12px; color: var(--text-muted); line-height: 1.6; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 10px; border: 1px dashed var(--glass-border);}
+        .algo-info { font-size: 11px; color: var(--text-muted); line-height: 1.6; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; border: 1px solid var(--glass-border);}
         .algo-info strong { color: white; }
 
-        /* --- CANVAS AREA --- */
         .canvas-container {
             background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); backdrop-filter: blur(20px);
@@ -100,23 +95,24 @@
         }
         
         .canvas-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 10px;}
-        .instruction { font-size: 14px; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 8px;}
-        .instruction i { color: var(--route); }
+        .instruction { font-size: 13px; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 8px;}
+        .instruction span { color: white; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-size: 11px;}
 
         .legend { display: flex; gap: 15px; font-size: 12px; font-weight: 600; color: var(--text-muted);}
         .legend-item { display: flex; align-items: center; gap: 6px; }
-        .dot { width: 12px; height: 12px; border-radius: 50%; }
-        .dot.red { background: var(--depot); box-shadow: 0 0 10px var(--depot);}
-        .dot.blue { background: var(--primary); box-shadow: 0 0 10px var(--primary);}
+        .shape { width: 12px; height: 12px; }
+        .shape.red-sq { background: var(--depot); border-radius: 2px; box-shadow: 0 0 10px var(--depot);}
+        .shape.blue-ci { background: var(--primary); border-radius: 50%; box-shadow: 0 0 10px var(--primary);}
 
+        /* Koordinat Düzlemi Görünümü İçin Canvas */
         #tsp-canvas {
-            width: 100%; height: 500px; background: rgba(0,0,0,0.4); border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.05); cursor: crosshair;
+            width: 100%; height: 550px; background-color: #0f172a; border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1); cursor: crosshair;
         }
 
         footer { text-align: center; color: var(--text-muted); font-size: 12px; padding: 20px 0; margin-top: 20px;}
 
-        @media (max-width: 900px) {
+        @media (max-width: 950px) {
             .main-grid { grid-template-columns: 1fr; }
             .social-sidebar { position: relative; top: 0; left: 0; flex-direction: row; justify-content: center; margin-bottom: 20px;}
         }
@@ -132,44 +128,59 @@
     <div class="wrapper">
         
         <header class="project-header">
-            <i class="fa-solid fa-route"></i>
-            <h1>Dynamic Route Optimizer (TSP)</h1>
-            <p>Endüstriyel lojistik ağlarında kullanılan Gezgin Satıcı Problemi (TSP) optimizatörü. Haritaya noktalar ekleyin, "En Yakın Komşu" ve "2-Opt" sezgisel algoritmalarıyla en kısa dağıtım rotasını canlı olarak hesaplayın.</p>
+            <i class="fa-solid fa-map-location-dot"></i>
+            <h1>Advanced Routing & Logistics Optimizer</h1>
+            <p>Çoklu depo (Multi-Depot) destekli Gezgin Satıcı Problemi çözücü. Koordinat düzleminde noktalarınızı belirleyin, matematiksel optimizasyonla (2-Opt Heuristics) nakliye maliyetlerinizi minimize eden en iyi rotayı simüle edin.</p>
         </header>
 
         <div class="main-grid">
             
             <div class="control-panel">
-                <div class="panel-title"><i class="fa-solid fa-sliders"></i> Kontrol Paneli</div>
+                <div class="panel-title"><i class="fa-solid fa-chart-line"></i> Optimizasyon Analizi</div>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="stats-grid">
                     <div class="stat-box">
-                        <div class="stat-label">Toplam Nokta</div>
+                        <div class="stat-label">Toplam Depo</div>
+                        <div class="stat-val nodes" id="depot-count" style="color: var(--depot);">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Teslimat Noktası</div>
                         <div class="stat-val nodes" id="node-count">0</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-label">Rota Uzunluğu</div>
+                        <div class="stat-label">Mesafe (Birim)</div>
                         <div class="stat-val" id="route-dist">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">2-Opt İyileştirmesi</div>
+                        <div class="stat-val saving" id="algo-saving">%0</div>
+                    </div>
+                    <div class="stat-box full">
+                        <div class="stat-label">Tahmini Nakliye Maliyeti ($Z$)</div>
+                        <div class="stat-val cost" id="total-cost">$0</div>
                     </div>
                 </div>
 
-                <button class="btn btn-solve" onclick="solveTSP()"><i class="fa-solid fa-truck-fast"></i> Rotayı Optimize Et</button>
-                <button class="btn btn-random" onclick="addRandomNodes(10)"><i class="fa-solid fa-shuffle"></i> 10 Rastgele Nokta</button>
-                <button class="btn btn-clear" onclick="clearCanvas()"><i class="fa-solid fa-trash-can"></i> Haritayı Temizle</button>
-
                 <div class="algo-info">
-                    <strong>Arka Plan Algoritması:</strong><br><br>
-                    1. <strong>Nearest Neighbor (NN):</strong> Bulunan en yakın noktaya giderek hızlı bir başlangıç rotası çizer.<br><br>
-                    2. <strong>2-Opt Swap:</strong> Oluşan rotadaki "kesişen" (çapraz) yolları tespit eder ve rotayı çözerek matematiksel olarak iyileştirir (Local Search Optimizasyonu).
+                    <strong>Matematiksel Model:</strong><br><br>
+                    <i class="fa-solid fa-calculator" style="color: var(--primary);"></i> Maliyet Fonksiyonu: <code>Z = Mesafe × $2.5</code><br><br>
+                    İlk aşamada <em>Nearest Neighbor (En Yakın Komşu)</em> ile başlangıç çözümü bulunur. Ardından <em>2-Opt Local Search</em> algoritması kesişen yolları çözerek rotayı matematiksel olarak kısaltır ve maliyeti düşürür.
                 </div>
+
+                <button class="btn btn-solve" onclick="solveTSP()"><i class="fa-solid fa-truck-fast"></i> Optimizasyonu Başlat</button>
+                <button class="btn btn-random" onclick="addRandomNodes(15)"><i class="fa-solid fa-shuffle"></i> 15 Rastgele Düğüm</button>
+                <button class="btn btn-clear" onclick="clearCanvas()"><i class="fa-solid fa-trash-can"></i> Düzlemi Temizle</button>
             </div>
 
             <div class="canvas-container">
                 <div class="canvas-header">
-                    <div class="instruction"><i class="fa-solid fa-hand-pointer"></i> Nokta eklemek için siyah alana tıklayın</div>
+                    <div class="instruction">
+                        <i class="fa-solid fa-mouse-pointer"></i> 
+                        Tıklama: Müşteri | <span>SHIFT</span> + Tıklama: Depo
+                    </div>
                     <div class="legend">
-                        <div class="legend-item"><div class="dot red"></div> Başlangıç (Depo)</div>
-                        <div class="legend-item"><div class="dot blue"></div> Teslimat Noktası</div>
+                        <div class="legend-item"><div class="shape red-sq"></div> Depo</div>
+                        <div class="legend-item"><div class="shape blue-ci"></div> Müşteri</div>
                     </div>
                 </div>
                 <canvas id="tsp-canvas"></canvas>
@@ -187,7 +198,6 @@
         const canvas = document.getElementById('tsp-canvas');
         const ctx = canvas.getContext('2d');
         
-        // Canvas boyutlarını CSS boyutlarına eşitle (Net görüntü için)
         function resizeCanvas() {
             canvas.width = canvas.offsetWidth;
             canvas.height = canvas.offsetHeight;
@@ -195,29 +205,43 @@
         }
         window.addEventListener('resize', resizeCanvas);
 
+        // nodes dizisinde nesneler tutulacak: {x, y, isDepot: boolean}
         let nodes = [];
         let optimizedTour = [];
         let isAnimating = false;
+        const COST_PER_UNIT = 2.5;
 
-        // Nokta ekleme eventi
         canvas.addEventListener('click', (e) => {
-            if(isAnimating) return; // Animasyon sırasında eklemeyi engelle
+            if(isAnimating) return; 
             const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
             
-            nodes.push({ x, y });
-            optimizedTour = []; // Yeni nokta eklendiğinde eski rotayı sil
+            // Shift tuşuna basılıysa Depo, değilse normal düğüm
+            const isDepot = e.shiftKey; 
+            nodes.push({ x, y, isDepot });
+            
+            optimizedTour = []; 
             updateStats();
             redraw();
         });
 
         function addRandomNodes(count) {
             if(isAnimating) return;
+            
+            // Eğer hiç depo yoksa ilk noktayı zorunlu depo yap
+            let hasDepot = nodes.some(n => n.isDepot);
+
             for(let i=0; i<count; i++) {
-                const x = Math.random() * (canvas.width - 40) + 20;
-                const y = Math.random() * (canvas.height - 40) + 20;
-                nodes.push({ x, y });
+                const x = Math.random() * (canvas.width - 60) + 30;
+                const y = Math.random() * (canvas.height - 60) + 30;
+                
+                if (!hasDepot && i === 0) {
+                    nodes.push({ x, y, isDepot: true });
+                    hasDepot = true;
+                } else {
+                    nodes.push({ x, y, isDepot: false });
+                }
             }
             optimizedTour = [];
             updateStats();
@@ -232,18 +256,26 @@
             redraw();
         }
 
-        function updateStats(distance = 0) {
-            document.getElementById('node-count').innerText = nodes.length;
+        function updateStats(distance = 0, savingPercent = 0) {
+            const depots = nodes.filter(n => n.isDepot).length;
+            const customers = nodes.length - depots;
+            
+            document.getElementById('depot-count').innerText = depots;
+            document.getElementById('node-count').innerText = customers;
             document.getElementById('route-dist').innerText = Math.floor(distance);
+            
+            // Kârı dolar formatında yaz
+            const cost = Math.floor(distance * COST_PER_UNIT);
+            document.getElementById('total-cost').innerText = "$" + cost.toLocaleString('tr-TR');
+            document.getElementById('algo-saving').innerText = "%" + savingPercent.toFixed(1);
         }
 
-        // İki nokta arası Öklid uzaklığı
         function dist(p1, p2) {
             return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
         }
 
-        // Rotanın toplam uzunluğunu hesapla
         function calculateTourDistance(tour) {
+            if(tour.length === 0) return 0;
             let d = 0;
             for(let i=0; i<tour.length; i++) {
                 d += dist(nodes[tour[i]], nodes[tour[(i+1) % tour.length]]);
@@ -251,11 +283,27 @@
             return d;
         }
 
-        // Çizim Fonksiyonu
+        // Koordinat Düzlemi Çizici
+        function drawGrid() {
+            const gridSize = 40;
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+
+            for (let x = 0; x <= canvas.width; x += gridSize) {
+                ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height);
+            }
+            for (let y = 0; y <= canvas.height; y += gridSize) {
+                ctx.moveTo(0, y); ctx.lineTo(canvas.width, y);
+            }
+            ctx.stroke();
+        }
+
         function redraw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawGrid(); // Arka plana ızgara çiz
             
-            // Çizgileri (Rotayı) çiz
+            // Çizgileri çiz
             if (optimizedTour.length > 1 && !isAnimating) {
                 ctx.beginPath();
                 ctx.moveTo(nodes[optimizedTour[0]].x, nodes[optimizedTour[0]].y);
@@ -263,30 +311,33 @@
                     let index = optimizedTour[i % optimizedTour.length];
                     ctx.lineTo(nodes[index].x, nodes[index].y);
                 }
-                ctx.strokeStyle = 'rgba(251, 191, 36, 0.6)'; // Sarımsı yol rengi
-                ctx.lineWidth = 2;
+                ctx.strokeStyle = 'rgba(251, 191, 36, 0.7)'; 
+                ctx.lineWidth = 2.5;
                 ctx.lineJoin = 'round';
                 ctx.stroke();
             }
 
-            // Düğümleri çiz
-            nodes.forEach((n, index) => {
+            // Noktaları (Düğüm/Depo) çiz
+            nodes.forEach(n => {
                 ctx.beginPath();
-                ctx.arc(n.x, n.y, index === 0 ? 8 : 6, 0, Math.PI * 2);
-                ctx.fillStyle = index === 0 ? '#ef4444' : '#3b82f6';
-                ctx.fill();
-                
-                // İlk noktaya hafif parlama efekti (Gölge)
-                if (index === 0) {
+                if (n.isDepot) {
+                    // Depo: Kare
+                    ctx.rect(n.x - 8, n.y - 8, 16, 16);
+                    ctx.fillStyle = '#ef4444';
                     ctx.shadowBlur = 15;
                     ctx.shadowColor = '#ef4444';
-                    ctx.fill();
-                    ctx.shadowBlur = 0; // Reset
+                } else {
+                    // Müşteri: Yuvarlak
+                    ctx.arc(n.x, n.y, 6, 0, Math.PI * 2);
+                    ctx.fillStyle = '#3b82f6';
+                    ctx.shadowBlur = 0;
                 }
+                ctx.fill();
+                ctx.shadowBlur = 0; // Reset
             });
         }
 
-        // --- OPTİMİZASYON ALGORİTMASI ---
+        // --- GELİŞMİŞ OPTİMİZASYON ALGORİTMASI ---
         function solveTSP() {
             if (nodes.length < 3) {
                 alert("Rota oluşturabilmek için en az 3 nokta eklemelisiniz.");
@@ -294,10 +345,16 @@
             }
             if (isAnimating) return;
 
+            // En az 1 depo var mı kontrol et, yoksa ilk noktayı depo kabul et (Geçici)
+            let startIdx = nodes.findIndex(n => n.isDepot);
+            if(startIdx === -1) startIdx = 0; 
+
             // 1. AŞAMA: Nearest Neighbor (En Yakın Komşu)
-            let unvisited = Array.from({length: nodes.length - 1}, (_, i) => i + 1);
-            let tour = [0]; // 0. indeks her zaman Depo (Başlangıç)
-            let current = 0;
+            let unvisited = Array.from({length: nodes.length}, (_, i) => i);
+            unvisited.splice(unvisited.indexOf(startIdx), 1);
+            
+            let tour = [startIdx]; 
+            let current = startIdx;
 
             while (unvisited.length > 0) {
                 let nearest = -1;
@@ -319,6 +376,8 @@
                 unvisited.splice(removeIdx, 1);
             }
 
+            let initialDistance = calculateTourDistance(tour);
+
             // 2. AŞAMA: 2-Opt Algoritması (Kesişen yolları çözer)
             let improved = true;
             while (improved) {
@@ -327,7 +386,7 @@
                     for (let k = i + 1; k < tour.length; k++) {
                         let newTour = twoOptSwap(tour, i, k);
                         let newDist = calculateTourDistance(newTour);
-                        if (newDist < calculateTourDistance(tour)) {
+                        if (newDist < calculateTourDistance(tour) - 0.001) { // Yuvarlama hatası payı
                             tour = newTour;
                             improved = true;
                         }
@@ -337,9 +396,14 @@
 
             optimizedTour = tour;
             const finalDistance = calculateTourDistance(optimizedTour);
-            updateStats(finalDistance);
             
-            // Animasyonu Başlat
+            // Tasarruf Oranını Hesapla (Ne kadar iyileşti?)
+            let saving = 0;
+            if(initialDistance > 0) {
+                saving = ((initialDistance - finalDistance) / initialDistance) * 100;
+            }
+
+            updateStats(finalDistance, saving);
             animateRouteDrawing();
         }
 
@@ -351,20 +415,26 @@
             return newTour;
         }
 
-        // --- ANİMASYON ---
         function animateRouteDrawing() {
             isAnimating = true;
             let currentSegment = 0;
-            let progress = 0; // 0'dan 1'e kadar
-            const speed = 0.08; // Çizim hızı
+            let progress = 0; 
+            const speed = 0.06; // Çizim hızı
 
             function drawFrame() {
-                // Temizle ve sadece noktaları çiz
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                nodes.forEach((n, index) => {
+                drawGrid();
+
+                // Düğümleri çiz
+                nodes.forEach(n => {
                     ctx.beginPath();
-                    ctx.arc(n.x, n.y, index === 0 ? 8 : 6, 0, Math.PI * 2);
-                    ctx.fillStyle = index === 0 ? '#ef4444' : '#3b82f6';
+                    if (n.isDepot) {
+                        ctx.rect(n.x - 8, n.y - 8, 16, 16);
+                        ctx.fillStyle = '#ef4444';
+                    } else {
+                        ctx.arc(n.x, n.y, 6, 0, Math.PI * 2);
+                        ctx.fillStyle = '#3b82f6';
+                    }
                     ctx.fill();
                 });
 
@@ -397,11 +467,14 @@
                 ctx.lineTo(currentX, currentY);
                 ctx.stroke();
 
-                // Çizgi başına parlayan nokta efekti
+                // Çizgi başına parlayan araba/nokta efekti
                 ctx.beginPath();
-                ctx.arc(currentX, currentY, 4, 0, Math.PI * 2);
+                ctx.arc(currentX, currentY, 5, 0, Math.PI * 2);
                 ctx.fillStyle = '#ffffff';
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#ffffff';
                 ctx.fill();
+                ctx.shadowBlur = 0;
 
                 progress += speed;
 
@@ -414,16 +487,14 @@
                     requestAnimationFrame(drawFrame);
                 } else {
                     isAnimating = false;
-                    redraw(); // Animasyon bitince standart çizime dön
+                    redraw(); 
                 }
             }
 
             drawFrame();
         }
 
-        // Başlangıçta canvas boyutunu ayarla
         setTimeout(resizeCanvas, 100);
-
     </script>
 </body>
 </html>
